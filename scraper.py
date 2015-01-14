@@ -11,6 +11,7 @@ try:
     ext_deps = True
 except ImportError:
     ext_deps = False
+import sys
 
 def main():
     import argparse
@@ -45,6 +46,12 @@ def main():
         for cell in cells[1:]:
             value = float('nan') if cell.text in ['\xa0', '#']  else float(cell.text)
             values.append(value)
+
+    if len(times) != len(values) or len(times) != 49:
+        sys.stderr.write("The scraped times and/or values don't fit:\n")
+        sys.stderr.write("times: {}\n".format(times))
+        sys.stderr.write("values: {}\n".format(values))
+        sys.exit(1)
 
     val_dict = dict(zip(times, values))
 
