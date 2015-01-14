@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+
+"""
+Scrapes the air pressure in Hessen from the site
+http://www.hlug.de/no_cache/messwerte/luft/meteorologie/luftdruck.html
+"""
+
+try:
+    from bs4 import BeautifulSoup
+    import requests
+    ext_deps = True
+except ImportError:
+    ext_deps = False
+
+def main():
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--user-agent', '-ua', required=True, help='User agent you want scraper to use.')
+    parser.add_argument('--station', '-s', required=True, help='Station to scrape the air pressure for.')
+    parser.add_argument('--format', choices=['dict', 'json', 'csv'], help='Output format', default='dict')
+
+    if not ext_deps: parser.error("Missing at least one of the python modules 'requests' or 'beautifulsoup4'.")
+
+    args = parser.parse_args()
+
+    browser = requests.Session()
+    browser.headers.update({'User-Agent': args.user_agent})
+
+    times = []
+    values = []
+
+    site = browser.get('http://www.hlug.de/no_cache/messwerte/luft/meteorologie/luftdruck.html')
+    site_structure = BeautifulSoup(site.text)
+
+    for table_header_cell in site_structure.find_all('th'):
+        thct = table_header_cell.text
+        if len(thct) == 5 and thct[2] == ':':
+            times.append(thct)
+
+    for table_row in site_structure.find_all('tr'):
+        cells = table_row.find_all('td')
+        if len(cells) < 2: continue
+        if not cells[0].text == args.station:
+            continue
+        for cell in cells[1:]:
+            value = float('nan') if cell.text == '\xa0' else float(cell.text)
+            values.append(value)
+
+    val_dict = dict(zip(times, values))
+
+    if args.format == 'dict':
+        from pprint import pprint
+        pprint(val_dict)
+    if args.format == 'json':
+        import json
+        print(json.dumps(val_dict))
+    if args.format == 'csv':
+        print("Time, Air Pressure")
+        for time in sorted(times):
+            print("{}, {}".format(time, val_dict[time]))
+
+if __name__ == "__main__":
+    main()
+
