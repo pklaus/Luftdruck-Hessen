@@ -47,7 +47,7 @@ def main():
             value = float('nan') if cell.text in ['\xa0', '#']  else float(cell.text)
             values.append(value)
 
-    if len(times) != len(values) or len(times) != 49:
+    if len(times) != len(values) or len(times) != 48:
         sys.stderr.write("The scraped times and/or values don't fit:\n")
         sys.stderr.write("times: {}\n".format(times))
         sys.stderr.write("values: {}\n".format(values))
