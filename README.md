@@ -43,6 +43,15 @@ Requirements
 To run this script, you need Python (tested with Python 3) and the modules
 requests and beautifulsoup4, both of which you can install with `pip`.
 
+Remarks
+-------
+
+If the HTML code of the site was better organized, you could parse it with Pandas in Python like this:
+
+    import pandas as pd
+    pressure_url = 'http://www.hlug.de/no_cache/messwerte/luft/meteorologie/luftdruck.html'
+    dfs = pd.read_html(pressure_url)
+
 Author
 ------
 
